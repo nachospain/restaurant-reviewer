@@ -1,6 +1,6 @@
 ## What is this?
 
-Just you wait folks!
+Just you wait folks! Coming soon...
 
 ## Sample Data
 
