@@ -34,7 +34,8 @@ const storeSchema = new mongoose.Schema({
       type: String,
       required: 'You must supply a valid address'
     }
-  }
+  },
+  photo: String
   // tags: an array of strings, so [] array of Strings : [String]
 });
 

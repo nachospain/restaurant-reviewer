@@ -2,6 +2,22 @@ const mongoose = require('mongoose');
 // Now we need to reference the Store model but because we already imported it
 // globally on start.js we can just call it as a variable
 const Store = mongoose.model('Store');
+const multer = require('multer');
+const jimp = require('jimp');
+const uuid = require('uuid');
+
+const multerOptions = {
+  storage: multer.memoryStorage(),
+  fileFilter(req, file, next) {
+    const isPhoto = file.mimetype.startsWith('image/');
+    if (isPhoto) {
+      next(null, true);
+    } else {
+      next({message: 'That file is not an image'}, false);
+    }
+  },
+}
+
 
 
 
@@ -11,6 +27,22 @@ exports.homePage = (req, res) => {
 
 exports.addStore = (req, res) => {
   res.render('editStore', {title: 'Add Store'});
+}
+
+exports.upload = multer(multerOptions).single('photo');
+
+exports.resize = async (req, res, next) => {
+  // check if no file to resize
+  if (!req.file) {
+    return next();
+  }
+  const extension = req.file.mimetype.split('/')[1];
+  req.body.photo = `${uuid.v4()}.${extension}`;
+  // now resize
+  const photo = await jimp.read(req.file.buffer);
+  await photo.resize(800, jimp.AUTO);
+  await photo.write(`./public/uploads/${req.body.photo}`);
+  next();
 }
 
 exports.createStore = async ( req, res ) => {
@@ -47,6 +79,12 @@ exports.updateStore = async (req, res) => {
   // redirect to stores
   res.redirect(`/stores/${store._id}/edit`);
 
+}
+
+exports.getStoreBySlug = async (req, res) => {
+  const store = await Store.findOne({slug: req.params.slug});
+  if (!store) return next();
+  res.render('store', { store });
 }
 
 
