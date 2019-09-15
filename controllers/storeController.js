@@ -87,6 +87,16 @@ exports.getStoreBySlug = async (req, res) => {
   res.render('store', { store });
 }
 
+exports.getStoresByTag = async (req, res) => {
+  const tag = req.params.tag;
+  const tagQuery = tag || { $exists: true };
+  // This checks if we have the name of a tag, if not just give me stores that have any tag (All);
+  const tagsPromise = await Store.getTagsList();
+  const storesPromise = Store.find({ tags: tagQuery });
+  const [tags, stores] = await Promise.all([tagsPromise, storesPromise]);
+  res.render('tag', { tags, title: 'Tags', tag, stores });
+};
+
 
 
 // if you do not want to use composition to handle errors on routes,
